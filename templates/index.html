@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Shutton - AI Blog Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .sidebar-title {
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .specialist-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            font-size: 0.9em;
+        }
+
+        .specialist-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+
+        .specialist-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+            font-weight: bold;
+        }
+
+        .info-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            font-size: 0.85em;
+        }
+
+        .info-label {
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .specialist-info {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 10px 20px;
+            border-bottom: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #667eea;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: white;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.assistant {
+            justify-content: flex-start;
+        }
+
+        .message-wrapper {
+            max-width: 70%;
+        }
+
+        .message-role {
+            font-size: 0.8em;
+            color: #999;
+            margin-bottom: 3px;
+        }
+
+        .message-content {
+            padding: 12px 16px;
+            border-radius: 8px;
+            word-wrap: break-word;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .message.assistant .message-content {
+            background: #f0f0f0;
+            color: #333;
+            border-bottom-left-radius: 2px;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: #999;
+            text-align: center;
+        }
+
+        .empty-state h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .input-area {
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            background: white;
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-group {
+            flex: 1;
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #764ba2;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-clear {
+            background: #ff6b6b;
+        }
+
+        .btn-clear:hover {
+            background: #ee5a52;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #999;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: spin 1s infinite;
+        }
+
+        @keyframes spin {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                display: none;
+            }
+
+            .message-wrapper {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-title">Specialists</div>
+            <button class="specialist-btn active" onclick="switchSpecialist('writer', this)">✍️ Writer</button>
+            <button class="specialist-btn" onclick="switchSpecialist('code_expert', this)">💻 Code Expert</button>
+            <button class="specialist-btn" onclick="switchSpecialist('editor', this)">📝 Editor</button>
+            <button class="specialist-btn" onclick="switchSpecialist('planner', this)">📋 Planner</button>
+
+            <div class="info-section">
+                <div class="sidebar-title">Status</div>
+                <div class="info-label">AI Status:</div>
+                <div id="ai-status" style="margin-bottom: 15px;">Loading...</div>
+                <div class="info-label">Current:</div>
+                <div id="current-specialist">Blog Writer</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>🤖 Agent Shutton</h1>
+                <p>Multi-Specialist AI Blog Writing Assistant</p>
+            </div>
+
+            <div class="specialist-info">
+                <span id="specialist-name">Blog Writer</span> - <span id="specialist-desc">Creates engaging blog content</span>
+            </div>
+
+            <div class="chat-container" id="chatContainer">
+                <div class="empty-state">
+                    <h2>Welcome to Agent Shutton</h2>
+                    <p>Select a specialist and start your conversation</p>
+                    <p style="font-size: 0.9em; margin-top: 10px; color: #666;">
+                        Choose from Writer, Code Expert, Editor, or Planner
+                    </p>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="messageInput" 
+                        placeholder="Ask me anything..."
+                        onkeypress="handleKeyPress(event)"
+                    >
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+                <button class="btn-clear" onclick="clearChat()">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isLoading = false;
+        let currentSpecialist = 'writer';
+        const specialistDescriptions = {
+            'writer': 'Creates engaging blog content',
+            'code_expert': 'Helps with programming',
+            'editor': 'Reviews and improves content',
+            'planner': 'Plans content strategy'
+        };
+
+        async function loadAgentInfo() {
+            try {
+                const response = await fetch('/api/agent-info');
+                const data = await response.json();
+                const status = data.genai_available ? '✓ AI Ready' : '✗ Fallback Mode';
+                document.getElementById('ai-status').textContent = status;
+            } catch (error) {
+                console.error('Error loading agent info:', error);
+                document.getElementById('ai-status').textContent = '✗ Error';
+            }
+        }
+
+        function switchSpecialist(specialist, btn) {
+            currentSpecialist = specialist;
+            
+            // Update active button
+            document.querySelectorAll('.specialist-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Update info
+            const name = specialist.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            document.getElementById('specialist-name').textContent = name;
+            document.getElementById('specialist-desc').textContent = specialistDescriptions[specialist];
+            document.getElementById('current-specialist').textContent = name;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message || isLoading) return;
+
+            isLoading = true;
+            input.value = '';
+            input.disabled = true;
+
+            // Add user message to chat
+            addMessage('user', message);
+
+            // Show loading indicator
+            const loadingId = addLoadingMessage();
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        message: message,
+                        specialist: currentSpecialist 
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Remove loading indicator and add agent response
+                    removeMessage(loadingId);
+                    addMessage('assistant', data.agent_response);
+                } else {
+                    removeMessage(loadingId);
+                    addMessage('assistant', `Error: ${data.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                removeMessage(loadingId);
+                addMessage('assistant', 'Error: Failed to get response. Please check console.');
+                console.error('Error:', error);
+            } finally {
+                isLoading = false;
+                input.disabled = false;
+                input.focus();
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !isLoading) {
+                sendMessage();
+            }
+        }
+
+        function addMessage(role, content) {
+            const container = document.getElementById('chatContainer');
+            
+            // Remove empty state if it exists
+            const emptyState = container.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            messageDiv.id = 'msg-' + Date.now();
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message-wrapper';
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = content;
+
+            wrapper.appendChild(contentDiv);
+            messageDiv.appendChild(wrapper);
+            container.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+
+            return messageDiv.id;
+        }
+
+        function addLoadingMessage() {
+            const container = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            const id = 'loading-' + Date.now();
+            messageDiv.id = id;
+            messageDiv.className = 'message assistant';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message-wrapper';
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content loading';
+            contentDiv.innerHTML = 'Thinking<span class="spinner"></span><span class="spinner"></span><span class="spinner"></span>';
+
+            wrapper.appendChild(contentDiv);
+            messageDiv.appendChild(wrapper);
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+
+            return id;
+        }
+
+        function removeMessage(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.remove();
+            }
+        }
+
+        async function clearChat() {
+            if (confirm('Clear chat history?')) {
+                try {
+                    await fetch('/api/clear', { method: 'POST' });
+                    document.getElementById('chatContainer').innerHTML = `
+                        <div class="empty-state">
+                            <h2>Welcome to Agent Shutton</h2>
+                            <p>Select a specialist and start your conversation</p>
+                        </div>
+                    `;
+                } catch (error) {
+                    alert('Error clearing chat');
+                }
+            }
+        }
+
+        // Load agent info on page load
+        window.addEventListener('load', loadAgentInfo);
+        document.getElementById('messageInput').focus();
+    </script>
+</body>
+</html>
